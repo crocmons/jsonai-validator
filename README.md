@@ -17,7 +17,7 @@ Here’s a simple example of how to use jsonai-validator in your project.
 import { validateAndGenerateJSON } from 'jsonai-validator';
 
 async function main() {
-  const data = { name: 'xyz', age: 50, lovesCoding: true };
+  const data = "My name is xyz, I am 50 years old and I love coding." ;
   const schema = {
     name: { type: 'string' },
     age: { type: 'number' },
@@ -37,6 +37,9 @@ main();
 
 
 # API
+
+
+
 ```bash
 validateAndGenerateJSON(data: any, schema: any): Promise<any>
 ```
@@ -45,6 +48,10 @@ Validates the input data against the provided schema and generates a JSON respon
 ** data: The input data to be validated.
 ** schema: The schema defining the expected types of the input data.
 ** returns: A promise that resolves to the generated JSON response.
+
+## Groq API Configuration
+To use the Groq LLM for AI response generation, you need to configure the Groq API. Please refer to the [Groq Quickstart Guide](https://console.groq.com/docs/quickstart) and follow the instructions provided to set up your API credentials and configuration.
+
 
 ### Parameters
 1 data: object - The data to be validated and transformed.
