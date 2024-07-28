@@ -1,24 +1,34 @@
+import { NextRequest, NextResponse } from "next/server"
 import {ZodTypeAny, z} from "zod"
-import {GoogleGenerativeAI} from "@google/generative-ai"
-import { EXAMPLE_ANSWER, EXAMPLE_PROMPT } from "./example";
+import {examples} from "./examples_langchain";
+import { ChatGroq } from "@langchain/groq";
+import { ChatPromptTemplate, FewShotChatMessagePromptTemplate } from "@langchain/core/prompts";
 
+
+// Create few shot message tmeplate 
+const examplePrompt = ChatPromptTemplate.fromTemplate(`Human: {input}
+    AI: {output}`);
+
+const fewShotPrompt = new FewShotChatMessagePromptTemplate({
+    prefix:
+    "You are an AI agent that converts data into the attached JSON format. You respond with nothing but valid JSON based on the input data. Your output should DIRECTLY be valid JSON, nothing added before and after. You will begin with the opening curly brace and end with the closing curly brace. Only if you absolutely cannot determine a field, use the value null. Below is one example of this.",
+  suffix: " Human: {input}, ",
+    examplePrompt,
+    examples,
+    inputVariables: ["input"], // no input variables
+  }
+);
+
+// Get the API 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY as string;
 
-const genai = new GoogleGenerativeAI(apiKey);
-
-const model = genai.getGenerativeModel({
-    model:"gemini-1.5-flash"
-})
-
-const generationConfig = {
-    temperature: 1,
-    topP: 0.95,
-    topK: 64,
-    maxOutputTokens: 8192,
-    responseMimeType: "text/plain",
-  };
-
-
+// Define the model
+const model = new ChatGroq({
+    temperature: 0.9,
+    apiKey: process.env.GROQ_API_KEY,
+    maxTokens: 8192,
+    model:'llama3-70b-8192'
+});
 
 export const GET = ()=>{
     return new Response("OK")
@@ -53,10 +63,12 @@ const jsonSchemaToZod = (schema:any): ZodTypeAny=>{
             return z.array(jsonSchemaToZod(schema.items)).nullable()    
         case "object":
             const shape: Record<string, ZodTypeAny> = {}
-            
+
             for (const key in schema){
                 if(key !== "type"){
+                    
                     shape[key] = jsonSchemaToZod(schema[key])
+
                 }
             }
             return z.object(shape)
@@ -70,10 +82,9 @@ const jsonSchemaToZod = (schema:any): ZodTypeAny=>{
 
 
 
-export const POST = async (req:any)=>{
+export const POST = async (req:NextRequest)=>{
    const body = await req.json()
 // step 1: make sure incoming request is valid
-
    const genericSchema = z.object({
      data:z.string(),
      format:z.object({}).passthrough(),
@@ -105,52 +116,25 @@ class RetryablePromise<T> extends Promise<T> {
    
 }
 
-const validationResult = await RetryablePromise.retry<object>(5, async (resolve, reject)=>{
+const validationResult = await RetryablePromise.retry<object>(0, async (resolve, reject)=>{
     try {
         // call  ai
         const text = `DATA: \n"${data}"\n\n-----------\nExpected JSON format: ${JSON.stringify(format, null, 2)}
-\n\n-----------\nValid JSON output in expected format:`
+\n\n-----------\nValid JSON output in expected format:   AI:`
 
-       const chatSession = model.startChat({
-        generationConfig,
-        history:[
+        const formattedPrompt = await fewShotPrompt.format({input:text });
 
-            {
-                role:"user",
-                parts:[{
-                  text:EXAMPLE_PROMPT 
-                }]
-            },
-
-            {
-                role:"user",
-                parts:[{
-                    text:EXAMPLE_ANSWER
-                }]
-            },
-
-            {
-                role: "model",
-                parts:[{  
-                  text: "You are an AI agent that converts data into the attached JSON format. You respond with nothing but valid JSON based on the input data. Your output should DIRECTLY be valid JSON, nothing added before and after. You will begin with the opening curly brace and end with the closing curly brace. Only if you absolutely cannot determine a field, use the value null."
-            }]
-            },
-
-          
-            
-        ]
-       })
-
-       const result = await chatSession.sendMessage(JSON.stringify(text))
+        const result = await model.invoke( formattedPrompt);
+        console.log(result.content)
 
    
     //    validate json
-    const validationResult = dynamicSchema.parse(JSON.parse(result.response.text() || ""))
+        const validationResult = dynamicSchema.parse(JSON.parse(result.content || ""))
     return resolve(validationResult)
     } catch (error) {
        reject(error) 
     }
 })
 
-   return Response.json(validationResult, {status:200})
+   return NextResponse.json(validationResult, {status:200})
 }
