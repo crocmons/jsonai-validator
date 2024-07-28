@@ -8,11 +8,12 @@ To install the package, run:
 
 ```bash
 npm install jsonai-validator
+```
 
 ## Usage
 Here’s a simple example of how to use jsonai-validator in your project.
 
-<pre>
+```bash
 import { validateAndGenerateJSON } from 'jsonai-validator';
 
 async function main() {
@@ -32,12 +33,14 @@ async function main() {
 }
 
 main();
-</pre>
+```
 
 
 # API
-<p> validateAndGenerateJSON(data: any, schema: any): Promise<any> 
-Validates the input data against the provided schema and generates a JSON response using AI. </p>
+```bash
+validateAndGenerateJSON(data: any, schema: any): Promise<any>
+```
+Validates the input data against the provided schema and generates a JSON response using AI.
 
 data: The input data to be validated.
 schema: The schema defining the expected types of the input data.
@@ -47,7 +50,7 @@ data: object - The data to be validated and transformed.
 schema: object - The schema describing the structure and types of the data. Each key should have a type property which can be string, number, boolean, array, or object.
 
 ## Example:
-<pre>
+```bash
 import { validateAndGenerateJSON } from 'jsonai-validator';
 
 const data = {
@@ -69,34 +72,36 @@ validateAndGenerateJSON(data, schema).then(response => {
 }).catch(error => {
   console.error('Validation or AI Error:', error);
 });
-</pre>
+```
 
-<bold>Development</bold>
+## Development
 
 ## Setup
-Clone the repository:
+### Clone the repository:
 
 ```bash
-Copy code
 git clone https://github.com/your-username/jsonai-validator.git
 cd jsonai-validator
-Install dependencies:
+```
+
+### Install dependencies:
 
 ```bash
-Copy code
 npm install
-Build the project:
+```
+
+## Build the project:
 
 ```bash
-Copy code
 npm run build
-Running Tests
+```
+
+## Running Tests
 To run tests, use the following command:
 
 ```bash
-Copy code
 npm test
-
+```
 
 ## Contributing
 Contributions are welcome! If you have any ideas, suggestions, or bug reports, please open an issue or submit a pull request.
