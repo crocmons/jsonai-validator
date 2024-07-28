@@ -42,13 +42,13 @@ validateAndGenerateJSON(data: any, schema: any): Promise<any>
 ```
 Validates the input data against the provided schema and generates a JSON response using AI.
 
-## data: The input data to be validated.
-## schema: The schema defining the expected types of the input data.
-## returns: A promise that resolves to the generated JSON response.
+** data: The input data to be validated.
+** schema: The schema defining the expected types of the input data.
+** returns: A promise that resolves to the generated JSON response.
 
 ### Parameters
-### data: object - The data to be validated and transformed.
-### schema: object - The schema describing the structure and types of the data. Each key should have a type property which can be string, number, boolean, array, or object.
+1 data: object - The data to be validated and transformed.
+2 schema: object - The schema describing the structure and types of the data. Each key should have a type property which can be string, number, boolean, array, or object.
 
 ## Example:
 ```bash
