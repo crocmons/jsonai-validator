@@ -21,7 +21,6 @@
     "npm",
     "package",
     "llm"
-
   ],
   "author": "ilma salsabil",
   "license": "Apache-2.0",
@@ -37,5 +36,9 @@
     "react-dom": "^18.2.0",
     "rollup": "^4.12.0",
     "tslib": "^2.6.2"
+  },
+  "dependencies": {
+    "@langchain/groq": "^0.0.15",
+    "zod": "^3.23.8"
   }
 }

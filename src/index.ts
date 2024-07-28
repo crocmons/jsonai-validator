@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from "next/server"
 import {ZodTypeAny, z} from "zod"
-import {examples} from "./examples_langchain";
+import {examples} from "./example";
 import { ChatGroq } from "@langchain/groq";
 import { ChatPromptTemplate, FewShotChatMessagePromptTemplate } from "@langchain/core/prompts";
 
@@ -20,11 +19,10 @@ const fewShotPrompt = new FewShotChatMessagePromptTemplate({
 );
 
 // Get the API 
-const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY as string;
 
 // Define the model
 const model = new ChatGroq({
-    temperature: 0.9,
+    temperature: 0.1,
     apiKey: process.env.GROQ_API_KEY,
     maxTokens: 8192,
     model:'llama3-70b-8192'
@@ -82,7 +80,7 @@ const jsonSchemaToZod = (schema:any): ZodTypeAny=>{
 
 
 
-export const POST = async (req:NextRequest)=>{
+export const POST = async (req:any)=>{
    const body = await req.json()
 // step 1: make sure incoming request is valid
    const genericSchema = z.object({
@@ -129,12 +127,12 @@ const validationResult = await RetryablePromise.retry<object>(0, async (resolve,
 
    
     //    validate json
-        const validationResult = dynamicSchema.parse(JSON.parse(result.content || ""))
+        const validationResult = dynamicSchema.parse(JSON.parse(result.content.toLocaleString() || ""))
     return resolve(validationResult)
     } catch (error) {
        reject(error) 
     }
 })
 
-   return NextResponse.json(validationResult, {status:200})
+   return Response.json(validationResult, {status:200})
 }
