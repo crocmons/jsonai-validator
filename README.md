@@ -34,6 +34,7 @@ async function main() {
 main();
 </pre>
 
+
 # API
 <p> validateAndGenerateJSON(data: any, schema: any): Promise<any> 
 Validates the input data against the provided schema and generates a JSON response using AI. </p>
